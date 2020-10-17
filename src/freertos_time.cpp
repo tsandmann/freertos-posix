@@ -34,34 +34,24 @@
 ///
 
 #include "freertos_time.h"
-#include "critical_section.h"
-
-#include <sys/time.h>
 
 
 namespace free_rtos_std {
-wall_clock::time_data wall_clock::time() { // atomic
-    critical_section critical;
-    return time_data { _timeOffset, ::xTaskGetTickCount() };
+timeval wall_clock::_timeOffset {};
+
+wall_clock::time_data wall_clock::time() {
+    struct timespec t;
+    ::clock_gettime(CLOCK_MONOTONIC, &t);
+    return time_data { { t.tv_nsec, static_cast<decltype(timeval::tv_usec)>(t.tv_nsec / 1'000) }, 0 };
 }
 
-void wall_clock::time(const timeval& time) { // atomic
-    critical_section critical;
-    _timeOffset = time;
+void wall_clock::time(const timeval& ) {
 }
 
 timeval wall_clock::get_offset() {
     return _timeOffset;
 }
 
-timeval wall_clock::_timeOffset;
-
-using namespace std::chrono;
-void set_system_clock(const time_point<system_clock, system_clock::duration>& time) {
-    auto delta { time - time_point<system_clock>(milliseconds(pdTICKS_TO_MS(xTaskGetTickCount()))) };
-    int64_t sec { duration_cast<seconds>(delta).count() };
-    int32_t usec = duration_cast<microseconds>(delta).count() - sec * 1'000'000; // narrowing type
-
-    free_rtos_std::wall_clock::time({ sec, usec });
+void set_system_clock(const std::chrono::time_point<std::chrono::system_clock, std::chrono::system_clock::duration>&) {
 }
 } // namespace free_rtos_std

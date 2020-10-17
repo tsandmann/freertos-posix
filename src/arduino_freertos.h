@@ -29,6 +29,7 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "portable/posix.h"
 
 #ifdef __has_include
 #if __has_include ("arduino.h")

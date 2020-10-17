@@ -76,7 +76,7 @@ void mcu_shutdown() {
 namespace freertos {
 uint32_t get_ms() {
     struct timespec spec;
-    ::clock_gettime(CLOCK_REALTIME, &spec);
+    ::clock_gettime(CLOCK_MONOTONIC, &spec);
 
     const auto s { spec.tv_sec };
     const auto ms { static_cast<uint64_t>(round(spec.tv_nsec / 1.0e6)) };// Convert nanoseconds to milliseconds
@@ -86,7 +86,7 @@ uint32_t get_ms() {
 
 uint64_t get_us() {
     struct timespec spec;
-    ::clock_gettime(CLOCK_REALTIME, &spec);
+    ::clock_gettime(CLOCK_MONOTONIC, &spec);
 
     const auto s { spec.tv_sec };
     const auto us { static_cast<uint64_t>(round(spec.tv_nsec / 1.0e3)) }; // Convert nanoseconds to microseconds
