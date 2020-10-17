@@ -101,7 +101,7 @@ static void task3(void*) {
         // future from a packaged_task
         std::packaged_task<int()> task { [] { return 7; } }; // wrap the function
         std::future<int> f1 { task.get_future() }; // get a future
-        std::jthread t2 { std::move(task) }; // launch on a thread
+        std::thread t2 { std::move(task) }; // launch on a thread
 
         // future from an async()
         std::future<int> f2 { std::async(std::launch::async, [] { return 8; }) };
@@ -120,6 +120,7 @@ static void task3(void*) {
         const auto r3 { f3.get() };
         ::printf("Done!\r\nResults are: %d %d %d\r\n", r1, r2, r3);
         configASSERT(7 + 8 + 9 == r1 + r2 + r3);
+        t2.join();
     }
 
 #ifdef __cpp_lib_jthread
