@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "arduino_freertos.h"
+#include "FreeRTOS.h"
 #include "event_groups.h"
 #include "critical_section.h"
 

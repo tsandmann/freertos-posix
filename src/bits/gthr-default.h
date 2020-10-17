@@ -35,7 +35,7 @@
 
 #pragma once
 
-#include "arduino_freertos.h"
+#include "FreeRTOS.h"
 #include "semphr.h"
 #include "thread_gthread.h"
 #include "condition_variable.h"

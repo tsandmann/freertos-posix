@@ -25,8 +25,7 @@
 
 #pragma once
 
-#include "arduino_freertos.h"
-
+#undef _GLIBCXX_HAVE_LINUX_FUTEX
 #include <cstdint>
 #include <tuple>
 
