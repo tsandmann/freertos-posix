@@ -35,7 +35,7 @@
 
 #pragma once
 
-#include "arduino_freertos.h"
+#include "FreeRTOS.h"
 
 
 namespace free_rtos_std {
