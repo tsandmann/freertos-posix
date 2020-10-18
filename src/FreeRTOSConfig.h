@@ -89,7 +89,7 @@ extern "C" {
 /* Run time stats gathering definitions. */
 #define configGENERATE_RUN_TIME_STATS               1
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()
-#define configUSE_TRACE_FACILITY                    0
+#define configUSE_TRACE_FACILITY                    1
 #define configUSE_STATS_FORMATTING_FUNCTIONS        0
 
 /* Task aware debugging. */

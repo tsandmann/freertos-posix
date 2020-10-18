@@ -50,6 +50,7 @@ extern "C" {
 
 #define _GLIBCXX_HAS_GTHREADS 1
 #define __GTHREADS 1
+#undef _GLIBCXX_USE_PTHREAD_RWLOCK_T
 
 // returns: 1 - thread system is active; 0 - thread system is not active
 static int __gthread_active_p() {

@@ -32,6 +32,10 @@
 #include <cstdio>
 #include <cmath>
 
+#ifdef _POSIX_PRIORITY_SCHEDULING
+#include <sched.h>
+#endif
+
 #include "posix.h"
 #include "freertos_time.h"
 #include "semphr.h"
@@ -79,7 +83,7 @@ uint32_t get_ms() {
     ::clock_gettime(CLOCK_MONOTONIC, &spec);
 
     const auto s { spec.tv_sec };
-    const auto ms { static_cast<uint64_t>(round(spec.tv_nsec / 1.0e6)) };// Convert nanoseconds to milliseconds
+    const auto ms { static_cast<uint64_t>(round(spec.tv_nsec / 1.0e6)) }; // Convert nanoseconds to milliseconds
     
     return s * 1'000UL + ms;
 }
@@ -90,10 +94,19 @@ uint64_t get_us() {
 
     const auto s { spec.tv_sec };
     const auto us { static_cast<uint64_t>(round(spec.tv_nsec / 1.0e3)) }; // Convert nanoseconds to microseconds
-    
+
     return s * 1'000'000UL + us;
 }
-    
+
+void delay_ms(const uint32_t ms) {
+    const auto start { get_ms() };
+    while (get_ms() - start < ms) {
+#ifdef _POSIX_PRIORITY_SCHEDULING
+        sched_yield();
+#endif
+    }
+}
+
 void error_blink(const uint8_t n) {
     ::vTaskSuspendAll();
 
@@ -114,10 +127,18 @@ void error_blink(const uint8_t n) {
 void print_ram_usage() {
     // not implemented 
 }
+
+std::tuple<size_t, size_t, size_t, size_t, size_t, size_t> ram1_usage() {
+    return { 0, 0, 0, 0, 0, 0 };
+}
+
+std::tuple<size_t, size_t> ram2_usage() {
+    return { 0, 0 };
+}
 } // namespace freertos
 
 extern "C" {
-int nanosleep(const struct timespec *req, struct timespec *rem) {
+int nanosleep(const struct timespec* req, struct timespec* rem) {
     ::vTaskDelay(pdMS_TO_TICKS(req->tv_sec * 1'000UL + req->tv_nsec / 1'000'000UL));
 
     // FIXME: implement signal handling: https://man7.org/linux/man-pages/man2/nanosleep.2.html
