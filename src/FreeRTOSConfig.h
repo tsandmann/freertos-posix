@@ -48,7 +48,7 @@ extern "C" {
 
 
 #define configUSE_PREEMPTION                        1
-#define configUSE_TICKLESS_IDLE                     0
+#define configUSE_TICKLESS_IDLE                     1
 #define configCPU_CLOCK_HZ                          ( F_CPU )
 #define configSYSTICK_CLOCK_HZ                      ( 100000UL )
 #define configTICK_RATE_HZ                          ( (TickType_t) 1000 )
@@ -88,7 +88,6 @@ extern "C" {
 
 /* Run time stats gathering definitions. */
 #define configGENERATE_RUN_TIME_STATS               1
-#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()
 #define configUSE_TRACE_FACILITY                    1
 #define configUSE_STATS_FORMATTING_FUNCTIONS        0
 
@@ -105,6 +104,8 @@ extern "C" {
 #define configTIMER_QUEUE_LENGTH                    10
 #define configTIMER_TASK_STACK_DEPTH                ( 1536U / 4U )
 #define configIDLE_TASK_NAME                        "IDLE"
+
+#define configEXPECTED_IDLE_TIME_BEFORE_SLEEP       1
 
 #define FASTRUN
 #define FLASHMEM

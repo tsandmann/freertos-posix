@@ -59,6 +59,7 @@
 #include <sys/time.h>
 #include <sys/times.h>
 #include <time.h>
+#include <unistd.h>
 
 /* Scheduler includes. */
 #include "FreeRTOS.h"
@@ -237,8 +238,10 @@ Thread_t *xCurrentThread;
 	xSchedulerEnd = pdTRUE;
 	(void)pthread_kill( hMainThread, SIG_RESUME );
 
+#if 0 // doesn't work
 	xCurrentThread = prvGetThreadFromTask( xTaskGetCurrentTaskHandle() );
 	prvSuspendSelf(xCurrentThread);
+#endif 
 }
 /*-----------------------------------------------------------*/
 
@@ -550,12 +553,45 @@ int iRet;
 }
 /*-----------------------------------------------------------*/
 
+static struct timespec ts_diff(struct timespec start, struct timespec end) {
+	struct timespec temp;
+	if ((end.tv_nsec - start.tv_nsec) < 0) {
+		temp.tv_sec = end.tv_sec - start.tv_sec - 1;
+		temp.tv_nsec = 1000000000LL + end.tv_nsec - start.tv_nsec;
+	} else {
+		temp.tv_sec = end.tv_sec - start.tv_sec;
+		temp.tv_nsec = end.tv_nsec - start.tv_nsec;
+	}
+	return temp;
+}
+
 unsigned long ulPortGetRunTime( void )
 {
-struct tms xTimes;
+#if ( configUSE_TICKLESS_IDLE == 1 )
+	static struct timespec start = { 0, 0 };
+	if (start.tv_sec == 0) {
+		clock_gettime(CLOCK_MONOTONIC, &start);
+	}
 
+	struct timespec now;
+	clock_gettime(CLOCK_MONOTONIC, &now);
+	struct timespec t = ts_diff(start, now);
+
+	return t.tv_nsec / 1000 + t.tv_sec * 1000000;
+#else
+	struct tms xTimes;
 	times( &xTimes );
-
-	return ( unsigned long ) xTimes.tms_utime;
+	return ( unsigned long ) (xTimes.tms_utime + xTimes.tms_stime);
+#endif
 }
+/*-----------------------------------------------------------*/
+
+#if ( configUSE_TICKLESS_IDLE == 1 )
+void vPortSleep(TickType_t ticks)
+{
+	if (ticks) {
+		usleep(pdTICKS_TO_MS(ticks) * 1000UL);
+	}
+}
+#endif
 /*-----------------------------------------------------------*/

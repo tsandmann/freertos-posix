@@ -84,7 +84,7 @@ uint32_t get_ms() {
 
     const auto s { spec.tv_sec };
     const auto ms { static_cast<uint64_t>(round(spec.tv_nsec / 1.0e6)) }; // Convert nanoseconds to milliseconds
-    
+
     return s * 1'000UL + ms;
 }
 
@@ -108,6 +108,10 @@ void delay_ms(const uint32_t ms) {
 }
 
 void error_blink(const uint8_t n) {
+    if (n == 10) {
+        exit(0);
+    }
+
     ::vTaskSuspendAll();
 
     struct timeval end, now;
@@ -125,7 +129,7 @@ void error_blink(const uint8_t n) {
 }
 
 void print_ram_usage() {
-    // not implemented 
+    // not implemented
 }
 
 std::tuple<size_t, size_t, size_t, size_t, size_t, size_t> ram1_usage() {

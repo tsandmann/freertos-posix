@@ -129,6 +129,11 @@ extern unsigned long ulPortGetRunTime( void );
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() /* no-op */
 #define portGET_RUN_TIME_COUNTER_VALUE()         ulPortGetRunTime()
 
+#if configUSE_TICKLESS_IDLE == 1
+extern void vPortSleep(TickType_t ticks);
+#define portSUPPRESS_TICKS_AND_SLEEP( ticks ) vPortSleep(ticks)
+#endif
+
 static inline void* pvPortMalloc( size_t xSize ) __attribute__( ( __malloc__, __warn_unused_result__, __alloc_size__( 1 ) ) );
 static inline void* pvPortMalloc( size_t xSize ) {
     return malloc( xSize );
