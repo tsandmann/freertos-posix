@@ -770,8 +770,8 @@
     #define configEXPECTED_IDLE_TIME_BEFORE_SLEEP    2
 #endif
 
-#if configEXPECTED_IDLE_TIME_BEFORE_SLEEP < 2
-    #error configEXPECTED_IDLE_TIME_BEFORE_SLEEP must not be less than 2
+#if configEXPECTED_IDLE_TIME_BEFORE_SLEEP < 1
+    #error configEXPECTED_IDLE_TIME_BEFORE_SLEEP must not be less than 1
 #endif
 
 #ifndef configUSE_TICKLESS_IDLE
