@@ -124,6 +124,8 @@ extern void vPortCancelThread( void *pxTaskToDelete );
  * reordering.
  */
 #define portMEMORY_BARRIER() __asm volatile( "" ::: "memory" )
+#define portDATA_SYNC_BARRIER()  __asm volatile( "" ::: "memory" )
+#define portINSTR_SYNC_BARRIER()
 
 extern unsigned long ulPortGetRunTime( void );
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() /* no-op */
