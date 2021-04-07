@@ -32,10 +32,18 @@
 
 extern "C" {
 /**
+ * @brief Write character c to Serial
+ * @param[in] c: Character to be written
+ */
+void serialport_put(const char c);
+
+/**
  * @brief Write every character from the null-terminated C-string str and one additional newline character '\n' to Serial
  * @param[in] str: Character C-string to be written
  */
-void serial_puts(const char* str);
+void serialport_puts(const char* str);
+
+void serialport_flush();
 
 /**
  * @brief Print assert message and blink one short pulse every two seconds

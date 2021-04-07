@@ -42,8 +42,16 @@
 
 
 extern "C" {
-void serial_puts(const char* str) {
+__attribute__((weak)) void serialport_put(const char c) {
+    ::putchar(c);
+}
+
+__attribute__((weak)) void serialport_puts(const char* str) {
     ::puts(str);
+}
+
+__attribute__((weak)) void serialport_flush() {
+    ::fflush(stdout);
 }
 
 _Unwind_Reason_Code trace_fcn(_Unwind_Context* ctx, void* depth) {
