@@ -32,7 +32,7 @@
 #include "portable/posix.h"
 
 #ifdef __has_include
-#if __has_include ("arduino.h")
-#include "arduino.h"
+#if __has_include ("Arduino.h")
+#include "Arduino.h"
 #endif
 #endif 
