@@ -37,6 +37,8 @@
 #pragma once
 
 #include "FreeRTOS.h"
+#include "task.h"
+#include "portable/posix.h"
 #include "event_groups.h"
 #include "critical_section.h"
 
@@ -113,11 +115,6 @@ public:
         // 'this' becomes the owner if r is the owner
         move(std::forward<gthr_freertos>(r));
         taskEXIT_CRITICAL();
-    }
-
-    gthr_freertos(int id) : gthr_freertos { nullptr, nullptr } {
-        configASSERT(id == 1); // just to satisfy the case !__gthread_active_p()
-        configASSERT(false); // not supported
     }
 
     bool create_thread(task_foo foo, void* arg) {
@@ -259,16 +256,7 @@ public:
     static TaskHandle_t get_freertos_handle(std::thread* p_thread);
 
     ~gthr_freertos() = default;
-
-    gthr_freertos& operator=(const gthr_freertos& r) {
-        critical_section critical;
-
-        _taskHandle = r._taskHandle;
-        _evHandle = r._evHandle;
-        _arg = r._arg;
-        _fOwner = false; // it is just a copy
-        return *this;
-    }
+    gthr_freertos& operator=(const gthr_freertos& r) = delete;
 
 private:
     gthr_freertos() = default;

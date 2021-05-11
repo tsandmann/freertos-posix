@@ -34,6 +34,8 @@
 ///
 
 #include "arduino_freertos.h"
+
+#if _GCC_VERSION >= 60100
 #include "gthr_key_type.h"
 
 #include <thread>
@@ -41,9 +43,106 @@
 #include <cstring>
 
 
-// trick to fool libgcc and make it detect we are using threads
+// trick to fool libgcc and make it detects we are using threads
 void __pthread_key_create() {}
 void pthread_cancel() {}
+
+extern "C" {
+int __gthread_once(__gthread_once_t* once, void (*func)(void)) {
+    static __gthread_mutex_t s_m { xSemaphoreCreateMutex() };
+    if (!s_m) {
+        return 12; // POSIX error: ENOMEM
+    }
+
+    __gthread_once_t flag { true };
+    xSemaphoreTakeRecursive(s_m, portMAX_DELAY);
+    std::swap(*once, flag);
+    xSemaphoreGiveRecursive(s_m);
+
+    if (flag == false) {
+        func();
+    }
+
+    return 0;
+}
+
+// returns: 1 - thread system is active; 0 - thread system is not active
+int __gthread_active_p() {
+    return 1;
+}
+
+
+int __gthread_cond_timedwait(__gthread_cond_t* cond, __gthread_mutex_t* mutex, const __gthread_time_t* abs_timeout) {
+    auto this_thrd_hndl { __gthread_t::native_task_handle() };
+    cond->lock();
+    cond->push(this_thrd_hndl);
+    cond->unlock();
+
+    timeval now {};
+    gettimeofday(&now, NULL);
+
+    auto ms { static_cast<int32_t>((*abs_timeout - now).milliseconds()) };
+    if (ms < 0) {
+        ms = 0;
+    }
+
+    __gthread_mutex_unlock(mutex);
+    const auto fTimeout { 0 == ulTaskNotifyTakeIndexed(configTASK_NOTIFICATION_ARRAY_ENTRIES - 1, pdTRUE, pdMS_TO_TICKS(ms)) };
+    __gthread_mutex_lock(mutex);
+
+    int result {};
+    if (fTimeout) { // timeout - remove the thread from the waiting list
+        cond->lock();
+        cond->remove(this_thrd_hndl);
+        cond->unlock();
+        result = 138; // posix ETIMEDOUT
+    }
+
+    return result;
+}
+
+int __gthread_cond_wait(__gthread_cond_t* cond, __gthread_mutex_t* mutex) {
+    auto this_thrd_hndl { __gthread_t::native_task_handle() };
+    cond->lock();
+    cond->push(this_thrd_hndl);
+    cond->unlock();
+
+    __gthread_mutex_unlock(mutex);
+    const auto res { ::ulTaskNotifyTakeIndexed(configTASK_NOTIFICATION_ARRAY_ENTRIES - 1, pdTRUE, portMAX_DELAY) };
+    __gthread_mutex_lock(mutex);
+    configASSERT(res == pdTRUE);
+
+    return static_cast<int>(res);
+}
+
+int __gthread_cond_signal(__gthread_cond_t* cond) {
+    configASSERT(cond);
+
+    cond->lock();
+    if (!cond->empty()) {
+        auto t = cond->front();
+        cond->pop();
+        ::xTaskNotifyGiveIndexed(t, configTASK_NOTIFICATION_ARRAY_ENTRIES - 1);
+    }
+    cond->unlock();
+
+    return 0; // FIXME: return value?
+}
+
+int __gthread_cond_broadcast(__gthread_cond_t* cond) {
+    configASSERT(cond);
+
+    cond->lock();
+    while (!cond->empty()) {
+        auto t = cond->front();
+        cond->pop();
+        ::xTaskNotifyGiveIndexed(t, configTASK_NOTIFICATION_ARRAY_ENTRIES - 1);
+    }
+    cond->unlock();
+    return 0; // FIXME: return value?
+}
+
+} // extern C
 
 namespace free_rtos_std {
 extern Key* s_key;
@@ -116,15 +215,16 @@ unsigned int thread::hardware_concurrency() noexcept {
     return 1;
 }
 
-void this_thread::__sleep_for(chrono::seconds sec, chrono::nanoseconds nsec) {
-    long ms { nsec.count() / 1'000'000 };
+namespace this_thread {
+void __sleep_for(chrono::seconds sec, chrono::nanoseconds nsec) {
+    long ms = nsec.count() / 1'000'000;
     if (sec.count() == 0 && ms == 0 && nsec.count() > 0) {
         ms = 1; // round up to 1 ms => if sleep time != 0, sleep at least 1ms
     }
 
-    ::vTaskDelay(pdMS_TO_TICKS(chrono::milliseconds(sec).count() + ms));
+    vTaskDelay(pdMS_TO_TICKS(chrono::milliseconds(sec).count() + ms));
 }
-
+} // namespace this_thread
 } // namespace std
 
 namespace free_rtos_std {
@@ -160,3 +260,4 @@ TaskHandle_t gthr_freertos::get_freertos_handle(std::thread* p_thread) {
 }
 
 } // namespace free_rtos_std
+#endif // _GCC_VERSION >= 60100

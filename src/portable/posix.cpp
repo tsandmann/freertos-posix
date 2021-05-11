@@ -106,6 +106,10 @@ uint64_t get_us() {
     return s * 1'000'000UL + us;
 }
 
+uint64_t get_us_from_isr() {
+    return get_us();
+}
+
 void delay_ms(const uint32_t ms) {
     const auto start { get_ms() };
     while (get_ms() - start < ms) {
