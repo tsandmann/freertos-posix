@@ -33,25 +33,56 @@
 /// adapted for use with the posix FreeRTOS port by Timo Sandmann
 ///
 
-#include "freertos_time.h"
+
+#if (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__) >= 60100
+#include "gthr_key_type.h"
 
 
 namespace free_rtos_std {
-timeval wall_clock::_timeOffset {};
 
-wall_clock::time_data wall_clock::time() {
-    struct timespec t;
-    ::clock_gettime(CLOCK_MONOTONIC, &t);
-    return time_data { { t.tv_nsec, static_cast<decltype(timeval::tv_usec)>(t.tv_nsec / 1'000) }, 0 };
+Key* s_key;
+
+int freertos_gthread_key_create(Key** keyp, void (*dtor)(void*)) {
+    // There is only one key for all threads. If more keys are needed
+    // a list must be implemented.
+    configASSERT(!s_key);
+    s_key = new Key(dtor);
+
+    *keyp = s_key;
+    return 0;
 }
 
-void wall_clock::time(const timeval& ) {
+int freertos_gthread_key_delete(Key*) {
+    // no synchronization here:
+    //   It is up to the applicaiton to delete (or maintain a reference)
+    //   the thread specific data associated with the key.
+    delete s_key;
+    s_key = nullptr;
+    return 0;
 }
 
-timeval wall_clock::get_offset() {
-    return _timeOffset;
+void* freertos_gthread_getspecific(Key* key) {
+    std::lock_guard<std::mutex> lg { key->_mtx };
+
+    auto item = key->_specValue.find(__gthread_t::self().native_task_handle());
+    if (item == key->_specValue.end()) {
+        return nullptr;
+    }
+    return const_cast<void*>(item->second);
 }
 
-void set_system_clock(const std::chrono::time_point<std::chrono::system_clock, std::chrono::system_clock::duration>&) {
+int freertos_gthread_setspecific(Key* key, const void* ptr) {
+    std::lock_guard<std::mutex> lg { key->_mtx };
+
+    auto& cont { key->_specValue };
+    auto task { __gthread_t::self().native_task_handle() };
+    if (ptr) {
+        cont[task] = ptr;
+    } else {
+        (void) cont.erase(task);
+    }
+    return 0;
 }
+
 } // namespace free_rtos_std
+#endif // GCC VERSION >= 60100

@@ -33,53 +33,47 @@
 /// adapted for use with the posix FreeRTOS port by Timo Sandmann
 ///
 
-#include "gthr_key_type.h"
+#include "freertos_time.h"
+
+#if _GCC_VERSION >= 60100
+#include "critical_section.h"
+
+#include <sys/time.h>
+#include <chrono>
 
 
 namespace free_rtos_std {
-
-Key* s_key;
-
-int freertos_gthread_key_create(Key** keyp, void (*dtor)(void*)) {
-    // There is only one key for all threads. If more keys are needed
-    // a list must be implemented.
-    configASSERT(!s_key);
-    s_key = new Key(dtor);
-
-    *keyp = s_key;
-    return 0;
+wall_clock::time_data wall_clock::time() { // atomic
+    critical_section critical;
+    return time_data { _timeOffset, xTaskGetTickCount() };
 }
 
-int freertos_gthread_key_delete(Key*) {
-    // no synchronization here:
-    //   It is up to the applicaiton to delete (or maintain a reference)
-    //   the thread specific data associated with the key.
-    delete s_key;
-    s_key = nullptr;
-    return 0;
+void wall_clock::time(const timeval& time) { // atomic
+    critical_section critical;
+    _timeOffset = time;
 }
 
-void* freertos_gthread_getspecific(Key* key) {
-    std::lock_guard<std::mutex> lg { key->_mtx };
-
-    auto item = key->_specValue.find(__gthread_t::self().native_task_handle());
-    if (item == key->_specValue.end()) {
-        return nullptr;
-    }
-    return const_cast<void*>(item->second);
+timeval wall_clock::get_offset() {
+    return _timeOffset;
 }
 
-int freertos_gthread_setspecific(Key* key, const void* ptr) {
-    std::lock_guard<std::mutex> lg { key->_mtx };
+timeval wall_clock::_timeOffset;
 
-    auto& cont { key->_specValue };
-    auto task { __gthread_t::self().native_task_handle() };
-    if (ptr) {
-        cont[task] = ptr;
-    } else {
-        (void) cont.erase(task);
-    }
-    return 0;
+using namespace std::chrono;
+void set_system_clock(const time_point<system_clock, system_clock::duration>& time) {
+    auto delta { time - time_point<system_clock>(milliseconds(pdTICKS_TO_MS(xTaskGetTickCount()))) };
+    int64_t sec { duration_cast<seconds>(delta).count() };
+    int32_t usec = duration_cast<microseconds>(delta).count() - sec * 1'000'000; // narrowing type
+
+    free_rtos_std::wall_clock::time({ sec, usec });
 }
-
 } // namespace free_rtos_std
+#else 
+namespace free_rtos_std {
+timeval wall_clock::get_offset() {
+    return _timeOffset;
+}
+
+timeval wall_clock::_timeOffset;
+} // namespace free_rtos_std
+#endif // _GCC_VERSION

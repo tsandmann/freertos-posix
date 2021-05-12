@@ -36,6 +36,8 @@
 #pragma once
 
 #include "FreeRTOS.h"
+#include "task.h"
+#include "portable/posix.h"
 #include "semphr.h"
 #include "thread_gthread.h"
 
@@ -55,14 +57,14 @@ public:
     }
 
     void lock() {
-        xSemaphoreTake(_xSemaphore, portMAX_DELAY);
+        ::xSemaphoreTake(_xSemaphore, portMAX_DELAY);
     }
     void unlock() {
-        xSemaphoreGive(_xSemaphore);
+        ::xSemaphoreGive(_xSemaphore);
     }
 
     ~semaphore() {
-        vSemaphoreDelete(_xSemaphore);
+        ::vSemaphoreDelete(_xSemaphore);
     }
 
     semaphore(const semaphore&) = delete;
