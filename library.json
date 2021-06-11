@@ -27,7 +27,8 @@
   "build": {
     "flags": [
       "-Ilib/cpp/src/bits",
-      "-Ilib/cpp/src"
+      "-Ilib/cpp/src",
+      "-I../../../../src"
     ],
     "srcFilter": [
       "+<../lib/cpp/src/bits/*>",
