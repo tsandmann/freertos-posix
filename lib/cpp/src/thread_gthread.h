@@ -117,6 +117,13 @@ public:
         taskEXIT_CRITICAL();
     }
 
+#if __GNUC__ < 11
+    gthr_freertos(int id) : gthr_freertos { nullptr, nullptr } {
+        configASSERT(id == 1); // just to satisfy the case !__gthread_active_p()
+        configASSERT(false); // not supported
+    }
+#endif // __GNUC__ < 11
+
     bool create_thread(task_foo foo, void* arg) {
         _arg = arg;
 

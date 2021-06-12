@@ -44,6 +44,8 @@
 #endif
 
 #if _GCC_VERSION >= 60100
+#undef _GLIBCXX_USE_NANOSLEEP
+
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
