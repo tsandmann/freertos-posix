@@ -31,6 +31,7 @@
 #include <unwind.h>
 #include <cstdio>
 #include <cmath>
+#include <tuple>
 
 #ifdef _POSIX_PRIORITY_SCHEDULING
 #include <sched.h>
