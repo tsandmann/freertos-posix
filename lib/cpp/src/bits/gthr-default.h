@@ -63,10 +63,11 @@ typedef free_rtos_std::gthr_freertos __gthread_t;
 extern "C" {
 
 #define _GLIBCXX_HAS_GTHREADS 1
+#define _GLIBCXX_USE_PTHREAD_RWLOCK_T 0
+#define _GLIBCXX_USE_SCHED_YIELD
 #define __GTHREADS 1
 #define __GTHREADS_CXX0X 1
 #define __GTHREAD_ONCE_INIT 0
-#define _GLIBCXX_USE_SCHED_YIELD
 #define __GTHREAD_COND_INIT {}
 #define _GTHREAD_USE_MUTEX_TIMEDLOCK 1
 
