@@ -27,8 +27,12 @@
 
 #undef _GLIBCXX_HAVE_LINUX_FUTEX
 #include <cstdint>
-#include <tuple>
 
+
+namespace std {
+template<class... Types>
+class tuple;
+}
 
 extern "C" {
 /**

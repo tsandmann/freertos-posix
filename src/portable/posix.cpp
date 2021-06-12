@@ -154,13 +154,6 @@ std::tuple<size_t, size_t> ram2_usage() {
 } // namespace freertos
 
 extern "C" {
-int nanosleep(const struct timespec* req, struct timespec* rem) {
-    ::vTaskDelay(pdMS_TO_TICKS(req->tv_sec * 1'000UL + req->tv_nsec / 1'000'000UL));
-
-    // FIXME: implement signal handling: https://man7.org/linux/man-pages/man2/nanosleep.2.html
-    return 0;
-}
-
 #if configSUPPORT_STATIC_ALLOCATION == 1
 void vApplicationGetIdleTaskMemory(StaticTask_t** ppxIdleTaskTCBBuffer, StackType_t** ppxIdleTaskStackBuffer, uint32_t* pulIdleTaskStackSize) {
     static StaticTask_t xIdleTaskTCB;
