@@ -1,7 +1,8 @@
-// clang-format off
 /*
- * FreeRTOS Kernel V10.4.1
+ * FreeRTOS Kernel V10.4.5
  * Copyright 2020 Cambridge Consultants Ltd.
+ *
+ * SPDX-License-Identifier: MIT
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,7 +24,6 @@
  * https://www.FreeRTOS.org
  * https://github.com/FreeRTOS
  *
- * 1 tab == 4 spaces!
  */
 
 
@@ -71,8 +71,8 @@ typedef unsigned long TickType_t;
 /* Architecture specifics. */
 #define portSTACK_GROWTH			( -1 )
 #define portHAS_STACK_OVERFLOW_CHECKING	( 1 )
-#define portTICK_PERIOD_MS			( ( TickType_t ) 1000 / configTICK_RATE_HZ )
-#define portTICK_RATE_MICROSECONDS	( ( portTickType ) 1000000 / configTICK_RATE_HZ )
+#define portTICK_PERIOD_MS			( ( TickType_t ) 1000UL / configTICK_RATE_HZ )
+#define portTICK_RATE_MICROSECONDS	( ( portTickType ) 1000000UL / configTICK_RATE_HZ )
 #define portBYTE_ALIGNMENT			8
 /*-----------------------------------------------------------*/
 
@@ -132,17 +132,22 @@ extern unsigned long ulPortGetRunTime( void );
 #define portGET_RUN_TIME_COUNTER_VALUE()         ulPortGetRunTime()
 
 #if configUSE_TICKLESS_IDLE == 1
-extern void vPortSleep(TickType_t ticks);
-#define portSUPPRESS_TICKS_AND_SLEEP( ticks ) vPortSleep(ticks)
+    extern void vPortSleep(TickType_t ticks);
+    #define portSUPPRESS_TICKS_AND_SLEEP( ticks ) vPortSleep( ticks )
 #endif
 
 static inline void* pvPortMalloc( size_t xSize ) __attribute__( ( __malloc__, __warn_unused_result__, __alloc_size__( 1 ) ) );
 static inline void* pvPortMalloc( size_t xSize ) {
-    return malloc( xSize );
+    portENTER_CRITICAL();
+    void* ptr = malloc( xSize );
+    portEXIT_CRITICAL();
+    return ptr;
 }
 
 static inline void vPortFree( void* pv ) {
+    portENTER_CRITICAL();
     free( pv );
+    portEXIT_CRITICAL();
 }
 
 #ifdef __cplusplus

@@ -212,6 +212,7 @@ public:
 
         // vTaskDelete will not return
         vTaskDelete(nullptr);
+        configASSERT(0);
     }
 
     static gthr_freertos self() {

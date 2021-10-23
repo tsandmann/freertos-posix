@@ -49,12 +49,10 @@ extern "C" {
 
 #define configUSE_PREEMPTION                        1
 #define configUSE_TICKLESS_IDLE                     1
-#define configCPU_CLOCK_HZ                          ( F_CPU )
-#define configSYSTICK_CLOCK_HZ                      ( 100000UL )
 #define configTICK_RATE_HZ                          ( (TickType_t) 1000 )
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION     0
 #define configMAX_PRIORITIES                        ( 10 )
-#define configMINIMAL_STACK_SIZE                    ( ( unsigned short ) 90 )
+#define configMINIMAL_STACK_SIZE                    ( PTHREAD_STACK_MIN / 4U )
 #define configMAX_TASK_NAME_LEN                     ( 10 )
 #define configUSE_16_BIT_TICKS                      0
 #define configIDLE_SHOULD_YIELD                     1
@@ -102,10 +100,10 @@ extern "C" {
 #define configUSE_TIMERS                            1
 #define configTIMER_TASK_PRIORITY                   ( configMAX_PRIORITIES - 1 )
 #define configTIMER_QUEUE_LENGTH                    10
-#define configTIMER_TASK_STACK_DEPTH                ( 1536U / 4U )
+#define configTIMER_TASK_STACK_DEPTH                ( 1536U > PTHREAD_STACK_MIN ? 1536 / 4U : PTHREAD_STACK_MIN / 4U )
 #define configIDLE_TASK_NAME                        "IDLE"
 
-#define configEXPECTED_IDLE_TIME_BEFORE_SLEEP       1
+#define configEXPECTED_IDLE_TIME_BEFORE_SLEEP       2
 
 #define FASTRUN
 #define FLASHMEM
@@ -144,7 +142,7 @@ to exclude the API function. */
 #define INCLUDE_vTaskDelete                         1
 #define INCLUDE_vTaskCleanUpResources               1
 #define INCLUDE_vTaskSuspend                        1
-#define INCLUDE_vTaskDelayUntil                     1
+#define INCLUDE_xTaskDelayUntil                     1
 #define INCLUDE_vTaskDelay                          1
 #define INCLUDE_eTaskGetState                       1
 #define INCLUDE_xTimerPendFunctionCall              1
