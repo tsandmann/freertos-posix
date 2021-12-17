@@ -30,7 +30,7 @@
 
 
 namespace std {
-template<class... Types>
+template <class... Types>
 class tuple;
 }
 
@@ -105,4 +105,6 @@ uint64_t get_us_from_isr();
  * @return Current time in ms
  */
 uint32_t get_ms();
+
+void print_stack_trace(void* task);
 } // namespace freertos

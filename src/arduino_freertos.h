@@ -39,4 +39,7 @@
 #if __has_include ("Arduino.h")
 #include "Arduino.h"
 #endif
-#endif 
+#if __has_include ("SD.h")
+#include "SD.h"
+#endif
+#endif

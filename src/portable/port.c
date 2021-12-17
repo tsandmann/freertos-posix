@@ -1,3 +1,5 @@
+// clang-format off
+
 /*
  * FreeRTOS Kernel V10.4.5
  * Copyright (C) 2020 Cambridge Consultants Ltd.
@@ -540,31 +542,39 @@ int iRet;
 }
 /*-----------------------------------------------------------*/
 
-static struct timespec ts_diff( struct timespec start, struct timespec end ) {
-    struct timespec temp;
-    if ( ( end.tv_nsec - start.tv_nsec ) < 0 ) {
-        temp.tv_sec = end.tv_sec - start.tv_sec - 1;
-        temp.tv_nsec = 1000000000LL + end.tv_nsec - start.tv_nsec;
-    } else {
-        temp.tv_sec = end.tv_sec - start.tv_sec;
-        temp.tv_nsec = end.tv_nsec - start.tv_nsec;
+/**
+ * @fn timespec_diff(struct timespec *, struct timespec *, struct timespec *)
+ * @brief Compute the diff of two timespecs, that is a - b = result.
+ * @param a the minuend
+ * @param b the subtrahend
+ * @param result a - b
+ */
+static inline void timespec_diff(struct timespec* a, struct timespec* b, struct timespec* result)
+{
+    result->tv_sec = a->tv_sec - b->tv_sec;
+    result->tv_nsec = a->tv_nsec - b->tv_nsec;
+    if (result->tv_nsec < 0)
+    {
+        --result->tv_sec;
+        result->tv_nsec += 1000000000L;
     }
-    return temp;
 }
 
 unsigned long ulPortGetRunTime( void )
 {
 #if ( configUSE_TICKLESS_IDLE == 1 )
     static struct timespec start = { 0, 0 };
-    if ( start.tv_sec == 0 ) {
-        clock_gettime( CLOCK_MONOTONIC, &start );
+    if ( start.tv_sec == 0 )
+    {
+        clock_gettime(CLOCK_MONOTONIC, &start);
     }
 
     struct timespec now;
     clock_gettime( CLOCK_MONOTONIC, &now );
-    struct timespec t = ts_diff( start, now );
+    struct timespec t;
+    timespec_diff( &now, &start, &t );
 
-    return t.tv_nsec / 1000 + t.tv_sec * 1000000;
+    return t.tv_nsec / 1000L + t.tv_sec * 1000000L;
 #else
     struct tms xTimes;
     times( &xTimes );
@@ -576,8 +586,26 @@ unsigned long ulPortGetRunTime( void )
 #if ( configUSE_TICKLESS_IDLE == 1 )
 void vPortSleep( TickType_t ticks )
 {
-    if ( ticks ) {
-        usleep( pdTICKS_TO_US( ticks ) );
+    if (ticks)
+    {
+        struct timespec start;
+        clock_gettime( CLOCK_MONOTONIC, &start );
+        struct timespec end = start;
+        end.tv_nsec += pdTICKS_TO_US( ticks ) * 1000L;
+        struct timespec now, to_sleep;
+        while ( pdTRUE )
+        {
+            clock_gettime( CLOCK_MONOTONIC, &now );
+            timespec_diff( &end, &now, &to_sleep );
+            const int64_t us_to_sleep = to_sleep.tv_sec * 1000000L + to_sleep.tv_nsec / 1000L;
+            if ( us_to_sleep > 0 )
+            {
+                usleep( us_to_sleep );
+            } else
+            {
+                break;
+            }
+        }
     }
 }
 #endif
