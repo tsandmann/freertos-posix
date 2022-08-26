@@ -1,7 +1,7 @@
 // clang-format off
 
 /*
- * FreeRTOS Kernel V10.4.5
+ * FreeRTOS Kernel V10.4.6
  * Copyright (C) 2020 Cambridge Consultants Ltd.
  *
  * SPDX-License-Identifier: MIT

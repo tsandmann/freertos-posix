@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.4.5
+ * FreeRTOS Kernel V10.4.6
  * Copyright 2020 Cambridge Consultants Ltd.
  *
  * SPDX-License-Identifier: MIT
@@ -71,8 +71,8 @@ typedef unsigned long TickType_t;
 /* Architecture specifics. */
 #define portSTACK_GROWTH			( -1 )
 #define portHAS_STACK_OVERFLOW_CHECKING	( 1 )
-#define portTICK_PERIOD_MS			( ( TickType_t ) 1000UL / configTICK_RATE_HZ )
-#define portTICK_RATE_MICROSECONDS	( ( portTickType ) 1000000UL / configTICK_RATE_HZ )
+#define portTICK_PERIOD_MS			( ( TickType_t ) 1000 / configTICK_RATE_HZ )
+#define portTICK_RATE_MICROSECONDS	( ( portTickType ) 1000000 / configTICK_RATE_HZ )
 #define portBYTE_ALIGNMENT			8
 /*-----------------------------------------------------------*/
 
