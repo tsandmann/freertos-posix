@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.4.6
+ * FreeRTOS Kernel V10.5.0
  * Copyright 2020 Cambridge Consultants Ltd.
  *
  * SPDX-License-Identifier: MIT
@@ -140,6 +140,14 @@ static inline void* pvPortMalloc( size_t xSize ) __attribute__( ( __malloc__, __
 static inline void* pvPortMalloc( size_t xSize ) {
     portENTER_CRITICAL();
     void* ptr = malloc( xSize );
+    portEXIT_CRITICAL();
+    return ptr;
+}
+
+static inline void* pvPortCalloc( size_t xNum, size_t xSize ) __attribute__( ( __malloc__, __warn_unused_result__, __alloc_size__( 1, 2 ) ) );
+static inline void* pvPortCalloc( size_t xNum, size_t xSize ) {
+    portENTER_CRITICAL();
+    void* ptr = calloc( xNum, xSize );
     portEXIT_CRITICAL();
     return ptr;
 }

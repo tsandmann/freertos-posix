@@ -32,6 +32,7 @@
 #include <cstdio>
 #include <cmath>
 #include <tuple>
+#include <new>
 
 #ifdef _POSIX_PRIORITY_SCHEDULING
 #include <sched.h>
@@ -57,7 +58,7 @@ __attribute__((weak)) void serialport_flush() {
 
 _Unwind_Reason_Code trace_fcn(_Unwind_Context* ctx, void* depth) {
     int* p_depth { static_cast<int*>(depth) };
-    ::printf("\t#%d: pc at 0x%x\r\n", *p_depth, _Unwind_GetIP(ctx));
+    ::printf("\t#%d: pc at 0x%lx\r\n", *p_depth, _Unwind_GetIP(ctx));
     (*p_depth)++;
     return _URC_NO_REASON;
 }
@@ -162,7 +163,8 @@ extern "C" {
 #if configSUPPORT_STATIC_ALLOCATION == 1
 void vApplicationGetIdleTaskMemory(StaticTask_t** ppxIdleTaskTCBBuffer, StackType_t** ppxIdleTaskStackBuffer, uint32_t* pulIdleTaskStackSize) {
     static StaticTask_t xIdleTaskTCB;
-    static StackType_t uxIdleTaskStack[configMINIMAL_STACK_SIZE] __attribute__((used, aligned(portBYTE_ALIGNMENT)));
+    static std::align_val_t stack_align { portBYTE_ALIGNMENT };
+    static StackType_t* uxIdleTaskStack { new (stack_align) StackType_t[configMINIMAL_STACK_SIZE] };
 
     *ppxIdleTaskTCBBuffer = &xIdleTaskTCB;
     *ppxIdleTaskStackBuffer = uxIdleTaskStack;
@@ -172,7 +174,8 @@ void vApplicationGetIdleTaskMemory(StaticTask_t** ppxIdleTaskTCBBuffer, StackTyp
 #if configUSE_TIMERS == 1
 void vApplicationGetTimerTaskMemory(StaticTask_t** ppxTimerTaskTCBBuffer, StackType_t** ppxTimerTaskStackBuffer, uint32_t* pulTimerTaskStackSize) {
     static StaticTask_t xTimerTaskTCB;
-    static StackType_t uxTimerTaskStack[configTIMER_TASK_STACK_DEPTH] __attribute__((used, aligned(portBYTE_ALIGNMENT)));
+    static std::align_val_t stack_align { portBYTE_ALIGNMENT };
+    static StackType_t* uxTimerTaskStack { new (stack_align) StackType_t[configTIMER_TASK_STACK_DEPTH] };
 
     *ppxTimerTaskTCBBuffer = &xTimerTaskTCB;
     *ppxTimerTaskStackBuffer = uxTimerTaskStack;
