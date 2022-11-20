@@ -42,6 +42,10 @@ typedef void (* TaskFunction_t)( void * );
     #define pdMS_TO_TICKS( xTimeInMs ) ( ( TickType_t ) ( ( ( TickType_t ) ( xTimeInMs ) * ( TickType_t ) configTICK_RATE_HZ ) / ( TickType_t ) 1000U ) )
 #endif
 
+#ifndef pdUS_TO_TICKS
+    #define pdUS_TO_TICKS( xTimeInUs ) ( ( TickType_t ) ( ( ( TickType_t ) ( xTimeInUs ) * ( TickType_t ) configTICK_RATE_HZ ) / ( TickType_t ) 1000000UL ) )
+#endif
+
 #ifndef pdTICKS_TO_MS
     #define pdTICKS_TO_MS( xTicks )    ( ( ( TickType_t ) ( xTicks ) * 1000UL ) / configTICK_RATE_HZ )
 #endif
