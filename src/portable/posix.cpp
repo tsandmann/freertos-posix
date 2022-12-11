@@ -146,8 +146,8 @@ void print_ram_usage() {
     // not implemented
 }
 
-std::tuple<size_t, size_t, size_t, size_t, size_t, size_t> ram1_usage() {
-    return { 0, 0, 0, 0, 0, 0 };
+std::tuple<size_t, size_t, size_t, size_t, size_t, size_t, size_t> ram1_usage() {
+    return { 0, 0, 0, 0, 0, 0, 0 };
 }
 
 std::tuple<size_t, size_t> ram2_usage() {
