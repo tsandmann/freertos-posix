@@ -88,6 +88,12 @@ std::tuple<size_t, size_t, size_t, size_t, size_t, size_t, size_t> ram1_usage();
 std::tuple<size_t, size_t> ram2_usage();
 
 /**
+ * @brief Get amount of used and free external RAM
+ * @return Tuple of: free RAM in byte, ram size in byte
+ */
+std::tuple<size_t, size_t> ram3_usage();
+
+/**
  * @brief Print amount of used and free RAM to Serial
  */
 void print_ram_usage();

@@ -154,6 +154,10 @@ std::tuple<size_t, size_t> ram2_usage() {
     return { 0, 0 };
 }
 
+std::tuple<size_t, size_t> ram3_usage() {
+    return { 0, 0 };
+}
+
 void print_stack_trace(void*) {
     // not implemented
 }
