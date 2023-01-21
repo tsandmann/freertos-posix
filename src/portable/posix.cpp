@@ -39,7 +39,7 @@
 #endif
 
 #include "posix.h"
-#include "freertos_time.h"
+#include "FreeRTOS.h"
 #include "semphr.h"
 
 

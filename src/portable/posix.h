@@ -113,4 +113,15 @@ uint64_t get_us_from_isr();
 uint32_t get_ms();
 
 void print_stack_trace(void* task);
+
+class clock {
+    static inline timeval offset_ { 0, 0 };
+
+public:
+    static void sync_rtc() {}
+
+    static inline const timeval* get_offset() {
+        return &offset_;
+    }
+};
 } // namespace freertos
