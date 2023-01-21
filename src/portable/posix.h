@@ -27,7 +27,7 @@
 
 #undef _GLIBCXX_HAVE_LINUX_FUTEX
 #include <cstdint>
-#include <sys/time.h>
+#include <time.h>
 
 
 namespace std {
