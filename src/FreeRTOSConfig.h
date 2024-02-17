@@ -1,8 +1,10 @@
 // clang-format off
 
 /*
- * FreeRTOS Kernel V10.5.1
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Kernel V11.0.1
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * SPDX-License-Identifier: MIT
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,7 +24,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * https://www.FreeRTOS.org
- * https://aws.amazon.com/freertos
+ * https://github.com/FreeRTOS
  *
  */
 
@@ -52,9 +54,9 @@ extern "C" {
 #define configTICK_RATE_HZ                          ( (TickType_t) 1000 )
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION     0
 #define configMAX_PRIORITIES                        ( 10 )
-#define configMINIMAL_STACK_SIZE                    ( PTHREAD_STACK_MIN / 4U )
+#define configMINIMAL_STACK_SIZE                    ( 120 )
 #define configMAX_TASK_NAME_LEN                     ( 10 )
-#define configUSE_16_BIT_TICKS                      0
+#define configTICK_TYPE_WIDTH_IN_BITS               TICK_TYPE_WIDTH_32_BITS
 #define configIDLE_SHOULD_YIELD                     1
 #define configUSE_TASK_NOTIFICATIONS                1
 #define configTASK_NOTIFICATION_ARRAY_ENTRIES       4
@@ -100,7 +102,7 @@ extern "C" {
 #define configUSE_TIMERS                            1
 #define configTIMER_TASK_PRIORITY                   ( configMAX_PRIORITIES - 1 )
 #define configTIMER_QUEUE_LENGTH                    10
-#define configTIMER_TASK_STACK_DEPTH                ( 1536U > PTHREAD_STACK_MIN ? 1536 / 4U : PTHREAD_STACK_MIN / 4U )
+#define configTIMER_TASK_STACK_DEPTH                ( configMINIMAL_STACK_SIZE )
 #define configIDLE_TASK_NAME                        "IDLE"
 
 #define configEXPECTED_IDLE_TIME_BEFORE_SLEEP       2

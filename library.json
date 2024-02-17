@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/tsandmann/freertos-posix"
   },
-  "version": "10.5.1-4",
+  "version": "11.0.1-1",
   "authors": [
     {
       "name": "Richard Barry",
